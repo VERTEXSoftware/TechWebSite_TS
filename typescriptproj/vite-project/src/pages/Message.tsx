@@ -1,32 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { Container } from '../Components/Container';
 
-const [data, setData] = useState<{ message: string; title: string } | null>(
-    null
-  );
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+const MyComponent = () => {
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/data");
-        const result = await response.json();
-        setData(result);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+    const fetchProducts = async () => {
+      const response = await fetch("http://localhost:5000/api/products");
+      const data = await response.json();
+      setProducts(data);
     };
 
-    fetchData();
+    fetchProducts();
   }, []);
 
+  return (
+    
+      <div>
+        
+        <h2>Список продуктов</h2>
+        
+        {products.length > 0 ? (
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {products.map(product => (
+              <li key={product.id} style={{ marginBottom: '10px' }}>
+                <strong>{product.name}</strong> - 
+                Цена: {product.price}р | 
+                Количество: {product.quantity} | 
+                Итого: {product.price * product.quantity}р
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Продукты не найдены</p>
+        )}
+      </div>
+  
+  );
+};
 
-return (
-<Container>
-    <div>
-
-
-
-    </div> 
-</Container>
-
-);
+export default MyComponent;

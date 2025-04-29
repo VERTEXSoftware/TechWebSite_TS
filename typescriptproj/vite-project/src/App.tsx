@@ -9,7 +9,7 @@ import AboutPage from './pages/About'
 import ContactPage from './pages/Contact'
 import BlogPage from './pages/Blog'
 
-
+import Message from './pages/Message'
 import Item from './components/Item';
 import AddItem from './pages/AddItem';
 
@@ -28,11 +28,13 @@ function App() {
     <div className="App">
       <Router>
         <Header />
+        <div className="h-[5%]"></div>
         <Routes>
           <Route path='/' element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/message" element={<Message />} />
         </Routes>
         <div className="p-4">
       <Button size="medium" color="primary" title="Добавить товар" onClick={() => setIsModalOpen(true)}/>
