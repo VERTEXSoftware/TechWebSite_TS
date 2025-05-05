@@ -1,34 +1,28 @@
-import Header from "./components/Header"
-import Footer from "./components/Footer";
-import Input from "./Components/Input";
-import Text from "./components/Text";
+import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 import { Button } from "./Components/Button";
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import HomePage from './pages/Home'
-import AboutPage from './pages/About'
-import ContactPage from './pages/Contact'
-import BlogPage from './pages/Blog'
+import HomePage from './pages/Home';
+import AboutPage from './pages/About';
+import ContactPage from './pages/Contact';
+import BlogPage from './pages/Blog';
 
-import Message from './pages/Message'
-import Shoplist from './pages/Shoplist'
-import Item from './components/Item';
+import Message from './pages/Message';
+import Shoplist from './pages/Shoplist';
+import Item from './Components/Item';
 import AddItem from './pages/AddItem';
-
+import { Helmet } from 'react-helmet';
 
 function App() {
-
-  const [items, setItems] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const addItem = (newItem) => {
-    setItems([...items, newItem]);
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="App">
+      <Helmet>
+        <title>My Website</title>
+        <meta name="description" content="Welcome to my website" />
+      </Helmet>
+      
       <Router>
         <Header />
         <div className="h-[5%]"></div>

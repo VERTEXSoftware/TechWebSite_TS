@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
 import Modal from '../Components/Modal';
 import { Button } from '../Components/Button';
 import { Input } from '../Components/Input';
@@ -13,17 +14,11 @@ interface Product {
 const Shoplist = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({ 
-    name: '', 
-    price: 0, 
-    quantity: 0 
-  });
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({ name: '', price: 0, quantity: 0 });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  useEffect(() => {fetchProducts();},[]);
 
   const fetchProducts = async () => {
     try {
@@ -36,17 +31,9 @@ const Shoplist = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewProduct({
-      ...newProduct,
-      [name]: name === 'name' ? value : Number(value)
-    });
-  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {const { name, value } = e.target;setNewProduct({...newProduct,[name]: name === 'name' ? value : Number(value)});};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleSubmit = async (e: React.FormEvent) => {e.preventDefault();setIsSubmitting(true);
     
     if (!newProduct.name || !newProduct.price || !newProduct.quantity) {
       setError('Все поля обязательны для заполнения');
@@ -77,10 +64,23 @@ const Shoplist = () => {
     }
   };
 
+  const totalItems = products.reduce((sum, product) => sum + product.quantity, 0);
+  const totalValue = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Список продуктов</h2>  
-      <Button title="Добавить продукт" color="secondary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: '20px' }}/>  
+      <Helmet>
+        <title>Список продуктов | Магазин</title>
+        <meta name="description" content={`Управление продуктами: ${products.length} товаров на сумму ${totalValue}р`} />
+        <meta property="og:title" content="Список продуктов магазина" />
+        <meta property="og:description" content={`Всего товаров: ${totalItems} на сумму ${totalValue}р`} />
+      </Helmet>
+
+      <h2 style={styles.title}>Список продуктов</h2>
+      <div style={styles.summary}>Всего товаров: {totalItems} | Общая стоимость: {totalValue}р</div>
+      
+      <Button title="Добавить продукт" color="secondary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: '20px' }}/>
+      
       {error && <div style={styles.error}>{error}</div>}
 
       {products.length > 0 ? (
@@ -113,13 +113,12 @@ const Shoplist = () => {
         </div>
         <div style={styles.modalButtons}>
           <Button type="submit" title="Добавить" color="secondary" disabled={isSubmitting}/>
-          <Button type="button" title="Отмена" color="primary" onClick={() => setIsModalOpen(false)}/>
+          <Button  type="button" title="Отмена" color="primary" onClick={() => setIsModalOpen(false)}/>
         </div>
       </Modal>
     </div>
   );
 };
-
 
 const styles = {
   container: {
@@ -131,6 +130,11 @@ const styles = {
   title: {
     color: '#333',
     marginBottom: '20px'
+  },
+  summary: {
+    marginBottom: '20px',
+    fontSize: '1.1em',
+    fontWeight: 'bold'
   },
   list: {
     listStyle: 'none',
@@ -155,6 +159,5 @@ const styles = {
     gap: '10px'
   }
 } as const;
-
 
 export default Shoplist;
