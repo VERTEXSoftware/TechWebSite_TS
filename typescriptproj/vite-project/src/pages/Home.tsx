@@ -7,8 +7,7 @@ const Home = () => {
       <Helmet>
         <title>Домашняя страница | Название сайта</title>
         <meta name="description" content="Добро пожаловать на домашнюю страницу нашего сайта. Мы предлагаем лучшие товары и услуги." />
-        <meta name="keywords" content="главная, домашняя страница, начало, приветствие" />
-        
+        <meta name="keywords" content="главная, домашняя страница, начало, приветствие" />     
         <meta property="og:title" content="Домашняя страница | Название сайта" />
         <meta property="og:description" content="Добро пожаловать на домашнюю страницу нашего сайта" />
         <meta property="og:type" content="website" />
@@ -16,7 +15,6 @@ const Home = () => {
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
-
       <main>
         <h1 className="text-4xl font-bold mb-6">Добро пожаловать!</h1>
         <div className="content">
