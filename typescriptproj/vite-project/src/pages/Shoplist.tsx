@@ -70,7 +70,7 @@ const Shoplist = () => {
   return (
     <div style={styles.container}>
       <Helmet>
-        <title>Список продуктов | Магазин</title>
+       <title>Список продуктов | Магазин</title>
         <meta name="description" content={`Управление продуктами: ${products.length} товаров на сумму ${totalValue}р`} />
         <meta property="og:title" content="Список продуктов магазина" />
         <meta property="og:description" content={`Всего товаров: ${totalItems} на сумму ${totalValue}р`} />

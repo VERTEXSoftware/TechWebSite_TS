@@ -31,7 +31,6 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogPage />} />
-          <Route path="/message" element={<Message />} />
           <Route path="/shoplist" element={<Shoplist />} />
         </Routes>
         <Footer />
