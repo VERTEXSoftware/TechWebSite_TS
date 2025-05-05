@@ -1,6 +1,8 @@
 import Header from "./components/Header"
 import Footer from "./components/Footer";
-import { Button } from "./components/Button";
+import Input from "./Components/Input";
+import Text from "./components/Text";
+import { Button } from "./Components/Button";
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 
@@ -10,6 +12,7 @@ import ContactPage from './pages/Contact'
 import BlogPage from './pages/Blog'
 
 import Message from './pages/Message'
+import Shoplist from './pages/Shoplist'
 import Item from './components/Item';
 import AddItem from './pages/AddItem';
 
@@ -35,14 +38,8 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/message" element={<Message />} />
+          <Route path="/shoplist" element={<Shoplist />} />
         </Routes>
-        <div className="p-4">
-      <Button size="medium" color="primary" title="Добавить товар" onClick={() => setIsModalOpen(true)}/>
-      <AddItem isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddItem={addItem} />
-      <div className="mt-4">
-        {items.map((item, index) => (<Item key={index} item={item} />))}
-      </div>
-    </div>
         <Footer />
       </Router>
     </div>

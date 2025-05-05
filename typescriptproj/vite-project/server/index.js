@@ -1,33 +1,44 @@
+
 import express from 'express';
 import cors from 'cors';
+import bodyParser  from 'body-parser';
 
 const app = express();
-const port = 5000;
+const PORT = 5000;
+
 
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-const products = [
-    { id: 1, name: 'Ноутбук', price: 100000, quantity: 5 },
-    { id: 2, name: 'Смартфон', price: 80000, quantity: 10 },
-    { id: 3, name: 'Наушники', price: 1500, quantity: 20 },
-    { id: 4, name: 'Клавиатура', price: 1000, quantity: 15 },
-];
+let products = [];
+let nextId = 1;
 
-app.get('/api/data', (req, res) => {
-    res.json({ message: 'Hello world server!', title: 'test' });
-});
 
 app.get('/api/products', (req, res) => {
-    res.json(products);
+  res.json(products);
 });
+
 
 app.post('/api/products', (req, res) => {
-    const newProduct = req.body;
-    products.push(newProduct);
-    res.status(201).json(newProduct);
+  const { name, price, quantity } = req.body;
+  
+  if (!name || !price || !quantity) {
+    return res.status(400).json({ error: 'Не все поля заполнены' });
+  }
+
+  const newProduct = {
+    id: nextId++,
+    name,
+    price: Number(price),
+    quantity: Number(quantity)
+  };
+  
+  products.push(newProduct);
+  res.status(201).json(newProduct);
 });
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

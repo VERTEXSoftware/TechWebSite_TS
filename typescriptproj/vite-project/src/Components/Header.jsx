@@ -9,6 +9,7 @@ export default class Home extends Component {
                 <Link to="/about" className="hover:text-gray-300">About</Link>
                 <Link to="/contact" className="hover:text-gray-300">Contact</Link>
                 <Link to="/blog" className="hover:text-gray-300">Blog</Link>
+                <Link to="/shoplist" className="hover:text-gray-300">Shoplist</Link>
             </header>
         );
     }
