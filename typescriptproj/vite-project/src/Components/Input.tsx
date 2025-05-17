@@ -1,9 +1,8 @@
-// Input.tsx
+
 import React from "react";
 
 type InputSize = 'small' | 'medium' | 'large';
 type InputColor = 'primary' | 'secondary';
-
 interface InputProps {
   size?: InputSize;
   color?: InputColor;
@@ -14,6 +13,8 @@ interface InputProps {
   name?: string;
   min?: number;
   disabled?: boolean;
+  className?: string;
+  required?: boolean;
 }
 
 export const Input: React.FC<InputProps> = ({ 
@@ -25,20 +26,16 @@ export const Input: React.FC<InputProps> = ({
   type = 'text',
   name = '',
   min,
-  disabled = false
+  disabled = false,
+  className = '',
+  required = false
 }) => {
   const defaultClass = "flex items-center h-[40px] w-full px-4 py-2 border transition-colors duration-200 rounded";
 
   const classes = {
     colors: {
-      primary: {
-        input: "border-gray-300 focus:border-blue-500 focus:ring-blue-500",
-        text: "text-gray-900",
-      },
-      secondary: {
-        input: "border-green-300 focus:border-green-500 focus:ring-green-500",
-        text: "text-gray-900",
-      },
+      primary: "border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-gray-900",
+      secondary: "border-green-300 focus:border-green-500 focus:ring-green-500 text-gray-900",
     },
     sizes: {
       small: "text-sm",
@@ -54,9 +51,14 @@ export const Input: React.FC<InputProps> = ({
       name={name}
       min={min}
       disabled={disabled}
-      className={
-        `${defaultClass} ${classes.sizes[size]} ${classes.colors[color].input} ${disabled ? classes.disabled : ''}`
-      }
+      required={required}
+      className={`
+        ${defaultClass} 
+        ${classes.sizes[size]} 
+        ${classes.colors[color]} 
+        ${disabled ? classes.disabled : ''}
+        ${className}
+      `.trim()}
       placeholder={placeholder}
       value={value}
       onChange={onChange}

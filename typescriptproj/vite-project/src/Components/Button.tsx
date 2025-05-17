@@ -10,6 +10,7 @@ interface ButtonProps {
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
+  className?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
@@ -18,20 +19,15 @@ export const Button: React.FC<ButtonProps> = ({
   title, 
   onClick,
   type = 'button',
-  disabled = false
+  disabled = false,
+  className = ''
 }) => {
-  const defaultClass = "flex items-center h-[40px] w-[max-content] px-4 py-2 transition-colors duration-200 rounded";
+  const defaultClass = "flex items-center justify-center h-[40px] w-[max-content] px-4 py-2 transition-colors duration-200 rounded";
 
   const classes = {
     colors: {
-      primary: {
-        button: "bg-red-600 hover:bg-red-900 active:bg-green-700",
-        text: "text-white",
-      },
-      secondary: {
-        button: "bg-green-600 hover:bg-green-900 active:bg-green-700",
-        text: "text-white",
-      },
+      primary: "bg-red-600 hover:bg-red-900 active:bg-green-700 text-white",
+      secondary: "bg-green-600 hover:bg-green-900 active:bg-green-700 text-white",
     },
     sizes: {
       small: "text-sm",
@@ -45,12 +41,16 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       type={type}
       disabled={disabled}
-      className={
-        `${defaultClass} ${classes.sizes[size]} ${classes.colors[color].button} ${disabled ? classes.disabled : ''}`
-      }
+      className={`
+        ${defaultClass} 
+        ${classes.sizes[size]} 
+        ${classes.colors[color]} 
+        ${disabled ? classes.disabled : ''}
+        ${className}
+      `.trim()}
       onClick={onClick}
     >
-      <div className={classes.colors[color].text}>{title}</div>
+      {title}
     </button>
   );
 };

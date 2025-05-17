@@ -11,14 +11,34 @@ interface Product {
   quantity: number;
 }
 
-const Shoplist = () => {
+interface CartItem {
+  productId: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface ShoplistProps {
+  user: {
+    id: number;
+    role: string;
+  } | null;
+}
+
+const Shoplist: React.FC<ShoplistProps> = ({ user }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({ name: '', price: 0, quantity: 0 });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {fetchProducts();},[]);
+  useEffect(() => {
+    fetchProducts();
+    if (user) {
+      fetchCart();
+    }
+  }, [user]);
 
   const fetchProducts = async () => {
     try {
@@ -31,9 +51,89 @@ const Shoplist = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {const { name, value } = e.target;setNewProduct({...newProduct,[name]: name === 'name' ? value : Number(value)});};
+  const fetchCart = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/cart/${user?.id}`);
+      if (!response.ok) throw new Error('Ошибка загрузки корзины');
+      const data = await response.json();
+      setCart(data);
+    } catch (err) {
+      setError('Не удалось загрузить корзину');
+    }
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {e.preventDefault();setIsSubmitting(true);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewProduct({
+      ...newProduct,
+      [name]: name === 'name' ? value : Number(value)
+    });
+  };
+
+  const handleAddToCart = async (productId: number) => {
+    if (!user) {
+      setError('Для добавления в корзину необходимо авторизоваться');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/cart/${user.id}/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+
+      if (!response.ok) throw new Error('Ошибка добавления в корзину');
+
+      const updatedCart = await response.json();
+      setCart(updatedCart);
+    } catch (err) {
+      setError('Ошибка при добавлении в корзину');
+    }
+  };
+
+  const handleRemoveFromCart = async (productId: number) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/cart/${user?.id}/remove`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (!response.ok) throw new Error('Ошибка удаления из корзины');
+
+      const updatedCart = await response.json();
+      setCart(updatedCart);
+    } catch (err) {
+      setError('Ошибка при удалении из корзины');
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/cart/${user?.id}/clear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Ошибка очистки корзины');
+
+      const updatedCart = await response.json();
+      setCart(updatedCart);
+    } catch (err) {
+      setError('Ошибка при очистке корзины');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
     
     if (!newProduct.name || !newProduct.price || !newProduct.quantity) {
       setError('Все поля обязательны для заполнения');
@@ -66,11 +166,13 @@ const Shoplist = () => {
 
   const totalItems = products.reduce((sum, product) => sum + product.quantity, 0);
   const totalValue = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div style={styles.container}>
       <Helmet>
-       <title>Список продуктов | Магазин</title>
+        <title>Список продуктов | Магазин</title>
         <meta name="description" content={`Управление продуктами: ${products.length} товаров на сумму ${totalValue}р`} />
         <meta property="og:title" content="Список продуктов магазина" />
         <meta property="og:description" content={`Всего товаров: ${totalItems} на сумму ${totalValue}р`} />
@@ -79,23 +181,53 @@ const Shoplist = () => {
       <h2 style={styles.title}>Список продуктов</h2>
       <div style={styles.summary}>Всего товаров: {totalItems} | Общая стоимость: {totalValue}р</div>
       
-      <Button title="Добавить продукт" color="secondary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: '20px' }}/>
+      {user?.role === 'admin' && (<Button  title="Добавить продукт"  color="secondary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: '20px' }} />)}
       
       {error && <div style={styles.error}>{error}</div>}
 
       {products.length > 0 ? (
-        <ul style={styles.list}>
-          {products.map(product => (
-            <li key={product.id} style={styles.listItem}>
-              <strong>{product.name}</strong> - 
-              Цена: {product.price}р | 
-              Количество: {product.quantity} | 
-              Итого: {product.price * product.quantity}р
-            </li>
-          ))}
-        </ul>
+        <div style={styles.productsContainer}>
+          <ul style={styles.list}>
+            {products.map(product => (
+              <li key={product.id} style={styles.listItem}>
+                <strong>{product.name}</strong> - 
+                Цена: {product.price}р | 
+                Количество: {product.quantity} | 
+                Итого: {product.price * product.quantity}р
+                {user && (
+                  <Button  title="В корзину"  color="primary"  onClick={() => handleAddToCart(product.id)}  style={{ marginLeft: '10px' }} size="small"/>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <p>Продукты не найдены</p>
+      )}
+
+      {user && (
+        <div style={styles.cartContainer}>
+          <h3 style={styles.cartTitle}>Ваша корзина ({cartItemsCount} товаров)</h3>
+          {cart.length > 0 ? (
+            <>
+              <ul style={styles.cartList}>
+                {cart.map(item => (
+                  <li key={item.productId} style={styles.cartItem}>
+                    {item.name} - {item.price}р × {item.quantity} = {item.price * item.quantity}р
+                    <Button title="Удалить" color="error"  onClick={() => handleRemoveFromCart(item.productId)}  style={{ marginLeft: '10px' }}size="small"/>
+                  </li>
+                ))}
+              </ul>
+              <div style={styles.cartTotal}>Итого: {cartTotal}р</div>
+              <div style={styles.cartActions}>
+                <Button  title="Очистить корзину"  color="secondary"  onClick={handleClearCart}/>
+                <Button  title="Оформить заказ"  color="primary"  onClick={() => alert('Заказ оформлен!')} style={{ marginLeft: '10px' }}/>
+              </div>
+            </>
+          ) : (
+            <p>Ваша корзина пуста</p>
+          )}
+        </div>
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={handleSubmit} title="Добавить новый продукт">
@@ -113,7 +245,7 @@ const Shoplist = () => {
         </div>
         <div style={styles.modalButtons}>
           <Button type="submit" title="Добавить" color="secondary" disabled={isSubmitting}/>
-          <Button  type="button" title="Отмена" color="primary" onClick={() => setIsModalOpen(false)}/>
+          <Button type="button" title="Отмена" color="primary" onClick={() => setIsModalOpen(false)}/>
         </div>
       </Modal>
     </div>
@@ -136,6 +268,9 @@ const styles = {
     fontSize: '1.1em',
     fontWeight: 'bold'
   },
+  productsContainer: {
+    marginBottom: '40px'
+  },
   list: {
     listStyle: 'none',
     padding: 0
@@ -144,7 +279,42 @@ const styles = {
     marginBottom: '10px',
     padding: '10px',
     backgroundColor: '#f9f9f9',
-    borderRadius: '4px'
+    borderRadius: '4px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cartContainer: {
+    marginTop: '30px',
+    padding: '20px',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '8px'
+  },
+  cartTitle: {
+    marginBottom: '15px'
+  },
+  cartList: {
+    listStyle: 'none',
+    padding: 0,
+    marginBottom: '15px'
+  },
+  cartItem: {
+    marginBottom: '8px',
+    padding: '8px',
+    backgroundColor: '#fff',
+    borderRadius: '4px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cartTotal: {
+    fontWeight: 'bold',
+    fontSize: '1.1em',
+    marginBottom: '15px'
+  },
+  cartActions: {
+    display: 'flex',
+    justifyContent: 'flex-end'
   },
   error: {
     color: 'red',
