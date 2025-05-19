@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
         <Link to="/about" className="hover:text-gray-300">О нас</Link>
         <Link to="/contact" className="hover:text-gray-300">Контакты</Link>
         <Link to="/blog" className="hover:text-gray-300">Блог</Link>
-        <Link to="/shoplist" className="hover:text-gray-300">Магазин</Link>
+       {user && <Link to="/shoplist" className="hover:text-gray-300">Магазин</Link>}
       </div>
       
       <div className="flex items-center space-x-4">
